@@ -7,7 +7,10 @@ def load_stock_data(ticker, period="2y"):
     print(f"Loading data from Alpha Vantage for: {ticker}")
     
     # Daily time series data
-    url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol={ticker}&outputsize=full&apikey={XJ6A5KT15AMKXTWN}"
+    API_KEY = "XJ6A5KT15AMKXTWN"
+
+    url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol={ticker}&outputsize=full&apikey={API_KEY}"
+
     
     try:
         response = requests.get(url)
