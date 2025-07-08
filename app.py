@@ -8,11 +8,13 @@ from visualizer import plot_forecast
 st.set_page_config(page_title="Stock Forecasting (Prophet)", layout="wide")
 st.title("Stock Market Forecasting Dashboard (Prophet)")
 
-# Sidebar inputs
+# Sidebar: Ticker selection
 st.sidebar.header("Stock Settings")
+default_tickers = ["AAPL", "GOOGL", "MSFT", "TSLA", "INFY.NS"]
 ticker = st.sidebar.text_input("Stock Ticker (e.g., AAPL, INFY.NS)", value="AAPL")
 forecast_days = st.sidebar.slider("Forecast Days", 7, 90, 30)
 
+# Load stock data
 if ticker:
     data = load_stock_data(ticker)
 
@@ -29,7 +31,7 @@ if ticker:
         st.subheader("Forecasted Prices")
         plot_forecast(data, forecast)
 
-        # Show forecast table
+        # Forecast table
         forecast_df = forecast[["ds", "yhat"]].tail(forecast_days)
         forecast_df.columns = ["Date", "Predicted Price"]
         st.dataframe(forecast_df)
