@@ -4,18 +4,21 @@ import requests
 API_KEY = "XJ6A5KT15AMKXTWN"
 
 def load_stock_data(ticker, period="2y"):
-    print(f"Loading data from Alpha Vantage for: {ticker}")
-
-    url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol={ticker}&outputsize=full&apikey={API_KEY}"
+    print(f"Loading data for ticker: {ticker}")
+    
+    url = (
+        f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED"
+        f"&symbol={ticker}&outputsize=full&apikey={API_KEY}"
+    )
 
     try:
         response = requests.get(url)
-        print("API Response:", response.text)  # ✅ Show API response
+        print("API raw response:", response.text[:500])  # Only print first 500 chars
 
         data = response.json()
 
         if "Time Series (Daily)" not in data:
-            print("Invalid data format from API.")
+            print("❌ API Error or Invalid Ticker:", data.get("Note") or data.get("Error Message") or "Unknown issue")
             return pd.DataFrame()
 
         df = pd.DataFrame.from_dict(data["Time Series (Daily)"], orient="index")
@@ -31,9 +34,9 @@ def load_stock_data(ticker, period="2y"):
         df = df.sort_index()
         df = df.astype(float).reset_index().rename(columns={"index": "Date"})
         
-        print(f"Downloaded {len(df)} rows from Alpha Vantage")
+        print(f"✅ Downloaded {len(df)} rows for {ticker}")
         return df
 
     except Exception as e:
-        print(f"API error: {e}")
+        print(f"❌ API error: {e}")
         return pd.DataFrame()
