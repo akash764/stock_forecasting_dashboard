@@ -1,14 +1,14 @@
-import yfinance as yf
-import pandas as pd
+import pandas_datareader.data as web
+from datetime import datetime, timedelta
 
 def load_stock_data(ticker, period="2y"):
     try:
-        data = yf.download(ticker, period=period)
-        if data.empty:
-            print(f"[Warning] Empty data returned for: {ticker}")
-            return None
-        data.reset_index(inplace=True)
-        return data
+        end = datetime.today()
+        start = end - timedelta(days=730)  # 2 years
+        df = web.DataReader(ticker, "av-alpha-vantage", start, end, api_key="YOUR_API_KEY")
+        df.reset_index(inplace=True)
+        df.rename(columns={"close": "Close", "date": "Date"}, inplace=True)
+        return df
     except Exception as e:
-        print(f"[Error] Failed to fetch data for {ticker}: {e}")
+        print(f"Failed to fetch data: {e}")
         return None
