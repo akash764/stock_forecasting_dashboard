@@ -1,10 +1,11 @@
+import streamlit as st
 import pandas as pd
 import requests
 
 API_KEY = "XJ6A5KT15AMKXTWN"
 
 def load_stock_data(ticker, period="2y"):
-    print(f"Loading data for: {ticker}")
+    st.write(f"Loading data for: {ticker}")  # Optional for Streamlit display
 
     url = (
         f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED"
@@ -15,23 +16,18 @@ def load_stock_data(ticker, period="2y"):
         response = requests.get(url)
         data = response.json()
 
-        # Print raw response to debug
-        print("API response:", data)
-
-        # Error Handling
         if "Error Message" in data:
-            print("❌ Invalid symbol or request:", data["Error Message"])
+            st.error("❌ Invalid symbol or request: " + data["Error Message"])
             return pd.DataFrame()
 
         if "Note" in data:
-            print("⚠️ Rate limit hit:", data["Note"])
+            st.warning("⚠️ API limit reached. Please wait and try again.")
             return pd.DataFrame()
 
         if "Time Series (Daily)" not in data:
-            print("❌ Unexpected response format.")
+            st.error("❌ Unexpected response format.")
             return pd.DataFrame()
 
-        # Parse DataFrame
         df = pd.DataFrame.from_dict(data["Time Series (Daily)"], orient="index")
         df = df.rename(columns={
             "1. open": "Open",
@@ -45,9 +41,8 @@ def load_stock_data(ticker, period="2y"):
         df = df.sort_index()
         df = df.astype(float).reset_index().rename(columns={"index": "Date"})
 
-        print(f"✅ Loaded {len(df)} rows.")
         return df
 
     except Exception as e:
-        print("❌ Exception:", e)
+        st.error(f"❌ Exception occurred: {e}")
         return pd.DataFrame()
